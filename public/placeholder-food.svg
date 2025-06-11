@@ -1,0 +1,7 @@
+<svg width="300" height="200" xmlns="http://www.w3.org/2000/svg">
+  <rect width="300" height="200" fill="#f3f4f6"/>
+  <circle cx="150" cy="80" r="25" fill="#d1d5db"/>
+  <rect x="120" y="110" width="60" height="8" fill="#d1d5db"/>
+  <rect x="130" y="125" width="40" height="6" fill="#e5e7eb"/>
+  <text x="150" y="160" font-family="Arial, sans-serif" font-size="12" fill="#9ca3af" text-anchor="middle">Món Ăn</text>
+</svg>
