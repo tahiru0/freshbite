@@ -36,6 +36,7 @@ export default function VoucherSection({ currentTotal, onVoucherSelect, redirect
     if (!authLoading && user) {
       fetchVouchers();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, authLoading, currentTotal]);  const fetchVouchers = async () => {
     if (!user) return;
     

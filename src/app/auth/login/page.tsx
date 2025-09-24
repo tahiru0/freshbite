@@ -62,7 +62,7 @@ export default function LoginPage() {
         const data = await response.json();
         setError(data.message || 'Đăng nhập thất bại');
       }
-    } catch (error) {
+    } catch {
       setError('Có lỗi xảy ra. Vui lòng thử lại.');
     } finally {
       setIsLoading(false);

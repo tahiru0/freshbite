@@ -43,7 +43,7 @@ export async function GET(
         { status: 404 }
       )
     }    // Tính average rating
-    const totalRating = product.reviews.reduce((sum: number, review: any) => sum + review.rating, 0)
+    const totalRating = product.reviews.reduce((sum: number, review) => sum + review.rating, 0)
     const averageRating = product.reviews.length > 0 ? totalRating / product.reviews.length : 0
 
     const productWithRating = {
@@ -105,7 +105,7 @@ export async function PUT(
       const deletePromises = imagesToDelete.map((publicId: string) => deleteImage(publicId))
       await Promise.all(deletePromises)
     }    // Cập nhật sản phẩm
-    const product = await prisma.$transaction(async (tx: any) => {
+    const product = await prisma.$transaction(async (tx) => {
       // Xóa ảnh cũ từ database nếu có
       if (imagesToDelete && imagesToDelete.length > 0) {
         await tx.productImage.deleteMany({
@@ -117,7 +117,7 @@ export async function PUT(
       }
 
       // Cập nhật thông tin sản phẩm
-      const updatedProduct = await tx.product.update({
+      await tx.product.update({
         where: { id },
         data: {
           name,
@@ -129,7 +129,7 @@ export async function PUT(
       })      // Thêm ảnh mới nếu có
       if (images && images.length > 0) {
         await tx.productImage.createMany({
-          data: images.map((img: any, index: number) => ({
+          data: images.map((img: { url: string; publicId: string; alt?: string }, index: number) => ({
             productId: id,
             url: img.url,
             publicId: img.publicId,
@@ -199,7 +199,7 @@ export async function DELETE(
         { status: 400 }
       )
     }    // Xóa ảnh từ Cloudinary
-    const deleteImagePromises = product.images.map((img: any) => deleteImage(img.publicId))
+    const deleteImagePromises = product.images.map((img) => deleteImage(img.publicId))
     await Promise.all(deleteImagePromises)
 
     // Xóa sản phẩm (cascade sẽ xóa images, reviews, cart items)

@@ -31,11 +31,11 @@ export async function GET(request: NextRequest) {
         }
       })      // Filter vouchers based on conditions
       const availableVouchers = userVoucherList
-        .map((uv: any) => uv.voucher)
-        .filter((voucher: any) => {
+        .map((uv) => uv.voucher)
+        .filter((voucher) => {
           const now = new Date()
           const validFrom = new Date(voucher.startDate)
-          const validTo = new Date(voucher.endDate)
+          const validTo = voucher.endDate ? new Date(voucher.endDate) : new Date('2099-12-31')
           
           return (
             voucher.isActive &&

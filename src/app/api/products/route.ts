@@ -14,6 +14,7 @@ export async function GET(request: NextRequest) {
 
     const skip = (page - 1) * limit
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const where: any = {}
     
     if (!includeInactive) {
@@ -63,7 +64,7 @@ export async function GET(request: NextRequest) {
     ])
 
     // Tính average rating cho mỗi product
-    const productsWithRating = products.map((product: any) => {
+    const productsWithRating = products.map((product) => {
       const averageRating = product.reviews.length > 0
         ? product.reviews.reduce((sum: number, review: { rating: number }) => sum + review.rating, 0) / product.reviews.length
         : 0
@@ -120,7 +121,7 @@ export async function POST(request: NextRequest) {
         price,
         categoryId,
         images: {
-          create: images?.map((img: any, index: number) => ({
+          create: images?.map((img: { url: string; publicId: string; alt?: string }, index: number) => ({
             url: img.url,
             publicId: img.publicId,
             alt: img.alt || name,

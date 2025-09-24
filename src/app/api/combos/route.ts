@@ -14,6 +14,7 @@ export async function GET(request: NextRequest) {
 
     const skip = (page - 1) * limit
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const where: any = {}
     
     if (!includeInactive) {
@@ -73,7 +74,7 @@ export async function GET(request: NextRequest) {
       }),
       prisma.combo.count({ where })
     ])    // Tính average rating cho mỗi combo
-    const combosWithRating = combos.map((combo: any) => {
+    const combosWithRating = combos.map((combo) => {
       const averageRating = combo.reviews.length > 0
         ? combo.reviews.reduce((sum: number, review: { rating: number }) => sum + review.rating, 0) / combo.reviews.length
         : 0
@@ -83,7 +84,7 @@ export async function GET(request: NextRequest) {
         averageRating: Math.round(averageRating * 10) / 10,
         totalReviews: combo._count.reviews,
         discount: combo.originalPrice 
-          ? Math.round(((combo.originalPrice - combo.price) / combo.originalPrice) * 100)
+          ? Math.round(((Number(combo.originalPrice) - Number(combo.price)) / Number(combo.originalPrice)) * 100)
           : null
       }
     })

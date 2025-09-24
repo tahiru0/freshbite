@@ -106,14 +106,16 @@ export async function GET(request: NextRequest) {
         }
       })
     ])    // Lấy thông tin chi tiết cho top products
-    const topProductIds = topProducts.map((item: any) => item.productId)
+    const topProductIds = topProducts
+      .map((item) => item.productId)
+      .filter((id): id is string => id !== null)
     const productDetails = await prisma.product.findMany({
       where: { id: { in: topProductIds } },
       include: { category: true }
     })
 
-    const topProductsWithDetails = topProducts.map((item: any) => {
-      const product = productDetails.find((p: any) => p.id === item.productId)
+    const topProductsWithDetails = topProducts.map((item) => {
+      const product = productDetails.find((p) => p.id === item.productId)
       return {
         ...item,
         product

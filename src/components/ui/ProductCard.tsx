@@ -22,10 +22,9 @@ interface Product {
 interface ProductCardProps {
   product: Product;
   onAddToCart?: (productId: string) => void;
-  layout?: 'grid' | 'list';
 }
 
-export function ProductCard({ product, onAddToCart, layout = 'grid' }: ProductCardProps) {
+export function ProductCard({ product, onAddToCart }: ProductCardProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isFavorited, setIsFavorited] = useState(false);
   const [imageError, setImageError] = useState(false);

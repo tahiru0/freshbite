@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Tạo token
-    const token = generateToken({ userId: user.id, role: user.role })
+    const token = generateToken({ id: user.id, phone: user.phone, role: user.role })
 
     const userResponse = {
       id: user.id,

@@ -65,7 +65,7 @@ export default function RegisterPage() {  const [formData, setFormData] = useSta
         const data = await response.json();
         setError(data.message || 'Đăng ký thất bại');
       }
-    } catch (error) {
+    } catch {
       setError('Có lỗi xảy ra. Vui lòng thử lại.');
     } finally {
       setIsLoading(false);

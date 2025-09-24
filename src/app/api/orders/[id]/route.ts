@@ -5,15 +5,17 @@ import { authMiddleware } from '@/lib/middleware'
 // GET - Lấy order theo ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authResult = await authMiddleware(request)
     if (authResult instanceof NextResponse) return authResult
 
     const { user } = authResult
+    const { id } = await params
 
-    const where: any = { id: params.id }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const where: any = { id }
     
     // Nếu không phải admin, chỉ lấy order của user đó
     if (user.role !== 'ADMIN') {
@@ -63,12 +65,13 @@ export async function GET(
 // PUT - Cập nhật trạng thái order (Admin only)
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authResult = await authMiddleware(request, 'ADMIN')
     if (authResult instanceof NextResponse) return authResult
 
+    const { id } = await params
     const { status } = await request.json()
 
     const validStatuses = ['PENDING', 'CONFIRMED', 'PREPARING', 'READY', 'DELIVERED', 'CANCELLED']
@@ -80,7 +83,7 @@ export async function PUT(
     }
 
     const order = await prisma.order.update({
-      where: { id: params.id },
+      where: { id },
       data: { status },
       include: {
         user: {
@@ -119,16 +122,17 @@ export async function PUT(
 // DELETE - Hủy order (Customer có thể hủy khi status là PENDING)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authResult = await authMiddleware(request)
     if (authResult instanceof NextResponse) return authResult
 
     const { user } = authResult
+    const { id } = await params
 
     const order = await prisma.order.findUnique({
-      where: { id: params.id }
+      where: { id }
     })
 
     if (!order) {
@@ -155,7 +159,7 @@ export async function DELETE(
     }
 
     await prisma.order.update({
-      where: { id: params.id },
+      where: { id },
       data: { status: 'CANCELLED' }
     })
 

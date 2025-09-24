@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { HeroBanner } from "@/components/layout/HeroBanner";
 import { ProductCard } from "@/components/ui/ProductCard";
 import { ComboCard } from "@/components/ui/ComboCard";
-import { CategoryCard } from "@/components/ui/CategoryCard";
-import { Star, Truck, Shield, Headphones, Leaf, ShoppingCart } from "lucide-react";
+import { Star, Truck, Shield, Headphones, Leaf } from "lucide-react";
 import { useCart } from '@/components/context/CartContext';
 import { toast } from 'react-toastify';
 
@@ -105,39 +105,6 @@ export default function Home() {
       window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, []);
-
-  // Sample products for testing
-  const sampleProducts = [
-    {
-      id: 'sample-1',
-      name: 'Salad Rau Củ Tươi',
-      price: 89000,
-      image: '/placeholder-food.jpg',
-      productId: 'sample-1'
-    },
-    {
-      id: 'sample-2', 
-      name: 'Sinh Tố Bơ Detox',
-      price: 65000,
-      image: '/placeholder-food.jpg',
-      productId: 'sample-2'
-    },
-    {
-      id: 'sample-3',
-      name: 'Combo Healthy',
-      price: 120000,
-      image: '/placeholder-food.jpg', 
-      productId: 'sample-3'
-    }
-  ];
-
-  const handleAddSampleToCart = (product: any) => {
-    addToCart(product);
-    toast.success(`Đã thêm ${product.name} vào giỏ hàng!`, {
-      position: "top-right",
-      autoClose: 3000,
-    });
-  };
 
   useEffect(() => {
     fetchData();
@@ -310,9 +277,11 @@ export default function Home() {
                       <div className="flex items-center gap-3">
                         <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
                           {category.image ? (
-                            <img 
+                            <Image 
                               src={category.image} 
                               alt={category.name}
+                              width={32}
+                              height={32}
                               className="w-8 h-8 object-cover rounded"
                               onError={(e) => {
                                 const target = e.target as HTMLImageElement;
@@ -431,7 +400,7 @@ export default function Home() {
                 <p className="text-gray-600">Món ăn healthy</p>
               </div>
               <div className="text-center p-6 bg-white rounded-xl shadow-md">
-                <div className="text-3xl font-bold text-orange-500 mb-2">30'</div>
+                <div className="text-3xl font-bold text-orange-500 mb-2">30&apos;</div>
                 <p className="text-gray-600">Giao hàng nhanh</p>
               </div>
               <div className="text-center p-6 bg-white rounded-xl shadow-md">
@@ -510,7 +479,7 @@ export default function Home() {
                   ))}
                 </div>
                 <p className="text-gray-600 mb-4">
-                  "Sản phẩm rất tươi ngon và giàu dinh dưỡng. Tôi đã cảm thấy sức khỏe tốt hơn rất nhiều kể từ khi sử dụng."
+                  &ldquo;Sản phẩm rất tươi ngon và giàu dinh dưỡng. Tôi đã cảm thấy sức khỏe tốt hơn rất nhiều kể từ khi sử dụng.&rdquo;
                 </p>
                 <div className="flex items-center">
                   <div className="w-10 h-10 bg-gray-300 rounded-full mr-3"></div>

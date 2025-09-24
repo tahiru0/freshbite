@@ -22,6 +22,7 @@ export async function POST(request: NextRequest) {
     const uploadPromises = files.map(file => uploadImage(file, folder))
     const results = await Promise.all(uploadPromises)
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const uploadedImages = results.map((result: any) => ({
       url: result.secure_url,
       publicId: result.public_id,

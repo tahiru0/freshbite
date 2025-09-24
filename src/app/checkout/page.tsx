@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useCart } from '@/components/context/CartContext';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowLeft, CreditCard, Truck, MapPin, User, Tag, Check, X, Plus } from 'lucide-react';
+import { ArrowLeft, CreditCard, Truck, MapPin, User, Tag, X, Plus } from 'lucide-react';
 import { toast } from 'react-toastify';
 
 interface OrderData {
@@ -38,18 +38,27 @@ interface Voucher {
   validTo: string;
 }
 
-interface User {
+interface CheckoutUser {
   id: string;
   name: string;
   phone: string;
   email?: string;
 }
 
-export default function CheckoutPage() {
+interface FormErrors {
+  name?: string;
+  email?: string;
+  phone?: string;
+  street?: string;
+  ward?: string;
+  district?: string;
+  city?: string;
+}
+
+function CheckoutPage() {
   const { cartItems, cartTotal, clearCart } = useCart();
   const searchParams = useSearchParams();
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoadingUser, setIsLoadingUser] = useState(true);
+  const [user, setUser] = useState<CheckoutUser | null>(null);
   const [orderData, setOrderData] = useState<OrderData>({
     customerInfo: {
       name: '',
@@ -66,7 +75,7 @@ export default function CheckoutPage() {
     paymentMethod: 'cash'
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState<any>({});
+  const [errors, setErrors] = useState<FormErrors>({});
   
   // Voucher state
   const [availableVouchers, setAvailableVouchers] = useState<Voucher[]>([]);
@@ -74,47 +83,6 @@ export default function CheckoutPage() {
   const [voucherCode, setVoucherCode] = useState('');
   const [isLoadingVouchers, setIsLoadingVouchers] = useState(false);
   const [showVoucherSection, setShowVoucherSection] = useState(false);  const [isApplyingVoucher, setIsApplyingVoucher] = useState(false);
-
-  // Check for user session and pre-selected voucher
-  useEffect(() => {
-    const checkUserAndVoucher = async () => {
-      setIsLoadingUser(true);
-      try {
-        // Check if user is logged in
-        const userResponse = await fetch('/api/auth/me');
-        if (userResponse.ok) {
-          const userData = await userResponse.json();
-          setUser(userData.user);
-          
-          // Pre-fill form with user data
-          setOrderData(prev => ({
-            ...prev,
-            customerInfo: {
-              name: userData.user.name || '',
-              email: userData.user.email || '',
-              phone: userData.user.phone || ''
-            }
-          }));
-        }
-      } catch (error) {
-        console.error('Error checking user session:', error);
-      } finally {
-        setIsLoadingUser(false);
-      }
-
-      // Check for pre-selected voucher from URL
-      const voucherCode = searchParams.get('voucher');
-      if (voucherCode) {
-        setVoucherCode(voucherCode);
-        // Auto-apply voucher after a short delay
-        setTimeout(() => {
-          applyVoucherByCode(voucherCode);
-        }, 500);
-      }
-    };
-
-    checkUserAndVoucher();
-  }, [searchParams]);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN', {
@@ -142,7 +110,7 @@ export default function CheckoutPage() {
   const discount = calculateDiscount();
   const total = cartTotal + shippingFee - discount;
   // Fetch available vouchers (for logged in users, fetch their vouchers)
-  const fetchVouchers = async () => {
+  const fetchVouchers = useCallback(async () => {
     setIsLoadingVouchers(true);
     try {
       const endpoint = user ? '/api/vouchers?userVouchers=true' : '/api/vouchers';
@@ -156,10 +124,10 @@ export default function CheckoutPage() {
     } finally {
       setIsLoadingVouchers(false);
     }
-  };
+  }, [user]);
 
   // Apply voucher by code (with parameter support)
-  const applyVoucherByCode = async (code?: string) => {
+  const applyVoucherByCode = useCallback(async (code?: string) => {
     const voucherCodeToUse = code || voucherCode;
     if (!voucherCodeToUse.trim()) {
       toast.error('Vui lòng nhập mã voucher');
@@ -189,12 +157,50 @@ export default function CheckoutPage() {
       } else {
         toast.error(data.error || 'Mã voucher không hợp lệ');
       }
-    } catch (error) {
+    } catch {
       toast.error('Có lỗi xảy ra khi áp dụng voucher');
     } finally {
       setIsApplyingVoucher(false);
     }
-  };
+  }, [voucherCode, cartTotal]);
+
+  // Check for user session and pre-selected voucher
+  useEffect(() => {
+    const checkUserAndVoucher = async () => {
+      try {
+        // Check if user is logged in
+        const userResponse = await fetch('/api/auth/me');
+        if (userResponse.ok) {
+          const userData = await userResponse.json();
+          setUser(userData.user);
+          
+          // Pre-fill form with user data
+          setOrderData(prev => ({
+            ...prev,
+            customerInfo: {
+              name: userData.user.name || '',
+              email: userData.user.email || '',
+              phone: userData.user.phone || ''
+            }
+          }));
+        }
+      } catch {
+        console.error('Error checking user session');
+      }
+
+      // Check for pre-selected voucher from URL
+      const voucherCode = searchParams.get('voucher');
+      if (voucherCode) {
+        setVoucherCode(voucherCode);
+        // Auto-apply voucher after a short delay
+        setTimeout(() => {
+          applyVoucherByCode(voucherCode);
+        }, 500);
+      }
+    };
+
+    checkUserAndVoucher();
+  }, [searchParams, applyVoucherByCode]);
 
   // Select voucher from list
   const selectVoucher = (voucher: Voucher) => {
@@ -219,10 +225,10 @@ export default function CheckoutPage() {
     if (showVoucherSection) {
       fetchVouchers();
     }
-  }, [showVoucherSection]);
+  }, [showVoucherSection, fetchVouchers]);
 
   const validateForm = () => {
-    const newErrors: any = {};
+    const newErrors: FormErrors = {};
 
     // Customer info validation
     if (!orderData.customerInfo.name.trim()) {
@@ -312,7 +318,7 @@ export default function CheckoutPage() {
       } else {
         toast.error(data.error || 'Có lỗi xảy ra khi đặt hàng');
       }
-    } catch (error) {
+    } catch {
       toast.error('Có lỗi xảy ra. Vui lòng thử lại.');
     } finally {
       setIsLoading(false);
@@ -323,16 +329,16 @@ export default function CheckoutPage() {
     setOrderData(prev => ({
       ...prev,
       [section]: {
-        ...(prev[section] as any),
+        ...(prev[section] as Record<string, string>),
         [field]: value
       }
     }));
     
     // Clear error when user starts typing
-    if (errors[field]) {
-      setErrors((prev: any) => ({
+    if (errors[field as keyof FormErrors]) {
+      setErrors((prev) => ({
         ...prev,
-        [field]: undefined
+        [field as keyof FormErrors]: undefined
       }));
     }
   };
@@ -757,5 +763,20 @@ export default function CheckoutPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CheckoutPageWrapper() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-green-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 text-lg">Đang tải trang thanh toán...</p>
+        </div>
+      </div>
+    }>
+      <CheckoutPage />
+    </Suspense>
   );
 }

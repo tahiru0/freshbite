@@ -33,6 +33,8 @@ NEXTAUTH_URL="http://localhost:3000"
 CLOUDINARY_CLOUD_NAME="your-cloud-name"
 CLOUDINARY_API_KEY="your-api-key"
 CLOUDINARY_API_SECRET="your-api-secret"
+
+JWT_SECRET="your-jwt-secret-key-here-should-be-long-and-random"
 ```
 
 #### Setup PostgreSQL
@@ -67,7 +69,7 @@ npx prisma db push
 ### 5. Seed dữ liệu mẫu
 
 ```bash
-npx prisma db seed
+npm run db:seed
 ```
 
 ### 6. Chạy ứng dụng

@@ -1,15 +1,13 @@
 'use client';
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { 
-  Search, 
   Star, 
   ShoppingCart, 
   Grid, 
   List, 
-  Filter, 
   X, 
   SlidersHorizontal, 
   Tag, 
@@ -76,7 +74,7 @@ interface Category {
   image: string;
 }
 
-export default function ProductsPage() {
+function ProductsPage() {
   const searchParams = useSearchParams();
   const { addToCart } = useCart();
   
@@ -112,7 +110,8 @@ export default function ProductsPage() {
     if (categoryParam) {
       setSelectedCategory(categoryParam);
     }
-  }, [searchParams]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, setSelectedCategory]);
 
   // Memoized functions to prevent re-rendering
   const fetchCategories = useCallback(async () => {
@@ -469,7 +468,7 @@ export default function ProductsPage() {
                     name="type"
                     value={type.value}
                     checked={showType === type.value}
-                    onChange={(e) => setShowType(e.target.value as any)}
+                    onChange={(e) => setShowType(e.target.value as 'all' | 'products' | 'combos')}
                     className="text-green-600 focus:ring-green-500"
                   />
                   <type.icon className="w-4 h-4 text-gray-400 group-hover:text-green-600" />
@@ -695,7 +694,7 @@ export default function ProductsPage() {
                 <span className="text-sm text-gray-600">Đang lọc:</span>
                 {searchTerm && (
                   <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                    Tìm: "{searchTerm}"
+                    Tìm: &ldquo;{searchTerm}&rdquo;
                     <button onClick={() => setSearchTerm('')} className="ml-2">
                       <X className="w-3 h-3" />
                     </button>
@@ -797,5 +796,20 @@ export default function ProductsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ProductsPageWrapper() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-green-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 text-lg">Đang tải sản phẩm...</p>
+        </div>
+      </div>
+    }>
+      <ProductsPage />
+    </Suspense>
   );
 }

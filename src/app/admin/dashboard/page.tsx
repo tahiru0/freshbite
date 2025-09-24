@@ -11,9 +11,14 @@ import {
   CheckCircle,
   XCircle,
   LogOut,
-  Settings,
   BarChart3
 } from 'lucide-react';
+
+interface AdminUser {
+  id: string;
+  name: string;
+  role: string;
+}
 
 interface DashboardStats {
   totalRevenue: number;
@@ -42,7 +47,7 @@ export default function AdminDashboard() {
   });
   const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
   const [loading, setLoading] = useState(true);
-  const [adminUser, setAdminUser] = useState<any>(null);
+  const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
 
   useEffect(() => {
     // Check admin authentication

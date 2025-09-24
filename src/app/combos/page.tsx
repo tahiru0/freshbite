@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Search, Star, ShoppingCart, Grid, List, Package, Tag } from 'lucide-react';
+import { Search, Star, ShoppingCart, Grid, List, Package } from 'lucide-react';
 import { useCart } from '@/components/context/CartContext';
 import { toast } from 'react-toastify';
 
@@ -49,7 +49,7 @@ interface Category {
   image: string;
 }
 
-export default function CombosPage() {
+function CombosPage() {
   const searchParams = useSearchParams();
   const { addToCart } = useCart();
   
@@ -512,5 +512,20 @@ export default function CombosPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function CombosPageWrapper() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-green-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 text-lg">Đang tải combo...</p>
+        </div>
+      </div>
+    }>
+      <CombosPage />
+    </Suspense>
   );
 }

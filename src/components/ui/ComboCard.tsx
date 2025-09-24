@@ -38,10 +38,9 @@ interface Combo {
 interface ComboCardProps {
   combo: Combo;
   onAddToCart?: (comboId: string) => void;
-  layout?: 'grid' | 'list';
 }
 
-export function ComboCard({ combo, onAddToCart, layout = 'grid' }: ComboCardProps) {
+export function ComboCard({ combo, onAddToCart }: ComboCardProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isFavorited, setIsFavorited] = useState(false);
   const [imageError, setImageError] = useState(false);
@@ -162,7 +161,7 @@ export function ComboCard({ combo, onAddToCart, layout = 'grid' }: ComboCardProp
         <div className="mb-3">
           <p className="text-xs text-gray-500 mb-2">Bao gồm {combo.items?.length || 0} món:</p>
           <div className="flex -space-x-1 overflow-hidden">
-            {combo.items?.slice(0, 3).map((item, index) => {
+            {combo.items?.slice(0, 3).map((item) => {
               const itemImageSrc = item.product.images?.[0]?.url;
               return (
                 <div key={item.id} className="relative">

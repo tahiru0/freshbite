@@ -16,6 +16,7 @@ export async function GET(request: NextRequest) {
 
     const skip = (page - 1) * limit
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const where: any = {}
     
     // Nếu không phải admin, chỉ lấy orders của user đó
@@ -102,7 +103,7 @@ export async function POST(request: NextRequest) {
       if (!(authResult instanceof NextResponse)) {
         user = authResult.user;
       }
-    } catch (error) {
+    } catch {
       // User not logged in - continue as guest
     }    // Validate products and calculate total
     let total = 0;
@@ -155,8 +156,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Apply voucher if provided and user is logged in
-    let discount = 0;
-    let voucherInfo = null;
+    const discount = 0;
     if (voucherCode && user) {
       // TODO: Implement voucher validation
       // const voucher = await validateVoucher(voucherCode, user.id, total);
@@ -172,7 +172,7 @@ export async function POST(request: NextRequest) {
     const orderNumber = `ORD-${Date.now()}`;
 
     // Create order
-    const order = await prisma.$transaction(async (tx: any) => {
+    const order = await prisma.$transaction(async (tx) => {
       // Create order
       const newOrder = await tx.order.create({
         data: {

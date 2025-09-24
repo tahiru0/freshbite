@@ -2,10 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { authMiddleware } from '@/lib/middleware'
 
-interface Params {
-  id: string
-}
-
 // GET - Lấy chi tiết combo
 export async function GET(
   request: NextRequest,
@@ -82,12 +78,13 @@ export async function GET(
 // PUT - Cập nhật combo (Admin only)
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Params }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authResult = await authMiddleware(request, 'ADMIN')
     if (authResult instanceof NextResponse) return authResult
 
+    const { id } = await params
     const { 
       name, 
       description, 
@@ -104,7 +101,7 @@ export async function PUT(
     if (imagesToDelete && imagesToDelete.length > 0) {
       await prisma.comboImage.deleteMany({
         where: {
-          comboId: params.id,
+          comboId: id,
           publicId: { in: imagesToDelete }
         }
       })
@@ -112,11 +109,11 @@ export async function PUT(
 
     // Xóa items cũ
     await prisma.comboItem.deleteMany({
-      where: { comboId: params.id }
+      where: { comboId: id }
     })
 
     const combo = await prisma.combo.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         name,
         description,
@@ -169,15 +166,17 @@ export async function PUT(
 // DELETE - Xóa combo (Admin only)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Params }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authResult = await authMiddleware(request, 'ADMIN')
     if (authResult instanceof NextResponse) return authResult
 
+    const { id } = await params
+
     // Kiểm tra combo có trong đơn hàng không
     const orderItemsCount = await prisma.orderItem.count({
-      where: { comboId: params.id }
+      where: { comboId: id }
     })
 
     if (orderItemsCount > 0) {
@@ -188,7 +187,7 @@ export async function DELETE(
     }
 
     await prisma.combo.delete({
-      where: { id: params.id }
+      where: { id }
     })
 
     return NextResponse.json({ message: 'Xóa combo thành công' })

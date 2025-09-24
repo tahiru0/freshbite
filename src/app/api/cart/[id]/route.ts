@@ -5,7 +5,7 @@ import { authMiddleware } from '@/lib/middleware'
 // PUT - Cập nhật số lượng sản phẩm trong giỏ hàng
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authResult = await authMiddleware(request)
@@ -13,6 +13,7 @@ export async function PUT(
 
     const { user } = authResult
     const { quantity } = await request.json()
+    const resolvedParams = await params
 
     if (quantity <= 0) {
       return NextResponse.json(
@@ -23,7 +24,7 @@ export async function PUT(
 
     const cartItem = await prisma.cartItem.update({
       where: {
-        id: params.id,
+        id: resolvedParams.id,
         userId: user.id
       },
       data: { quantity },
@@ -52,17 +53,18 @@ export async function PUT(
 // DELETE - Xóa sản phẩm khỏi giỏ hàng
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authResult = await authMiddleware(request)
     if (authResult instanceof NextResponse) return authResult
 
     const { user } = authResult
+    const resolvedParams = await params
 
     await prisma.cartItem.delete({
       where: {
-        id: params.id,
+        id: resolvedParams.id,
         userId: user.id
       }
     })

@@ -44,15 +44,15 @@ export async function GET(request: NextRequest) {
       orderBy: { createdAt: 'desc' }
     })
 
-    const total = cartItems.reduce((sum: number, item: any) => {
-      const price = item.product ? Number(item.product.price) : Number(item.combo.price)
+    const total = cartItems.reduce((sum: number, item) => {
+      const price = item.product ? Number(item.product.price) : (item.combo ? Number(item.combo.price) : 0)
       return sum + (price * item.quantity)
     }, 0)
 
     return NextResponse.json({
       items: cartItems,
       total,
-      itemCount: cartItems.reduce((sum: number, item: any) => sum + item.quantity, 0)
+      itemCount: cartItems.reduce((sum: number, item) => sum + item.quantity, 0)
     })
   } catch (error) {
     console.error('Get cart error:', error)

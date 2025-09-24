@@ -39,16 +39,17 @@ export async function GET(
 // PUT - Cập nhật category (Admin only)
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authResult = await authMiddleware(request, 'ADMIN')
     if (authResult instanceof NextResponse) return authResult
 
+    const { id } = await params
     const { name, description, image, isActive } = await request.json()
 
     const category = await prisma.category.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         name,
         description,
@@ -73,15 +74,17 @@ export async function PUT(
 // DELETE - Xóa category (Admin only)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authResult = await authMiddleware(request, 'ADMIN')
     if (authResult instanceof NextResponse) return authResult
 
+    const { id } = await params
+
     // Kiểm tra xem có sản phẩm nào thuộc danh mục này không
     const productsCount = await prisma.product.count({
-      where: { categoryId: params.id }
+      where: { categoryId: id }
     })
 
     if (productsCount > 0) {
@@ -92,7 +95,7 @@ export async function DELETE(
     }
 
     await prisma.category.delete({
-      where: { id: params.id }
+      where: { id }
     })
 
     return NextResponse.json({

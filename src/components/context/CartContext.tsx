@@ -13,10 +13,17 @@ interface CartItem {
   type: 'product' | 'combo';
 }
 
+interface ComboItem {
+  id: string;
+  name: string;
+  price: number | string;
+  images?: Array<{ url: string }>;
+}
+
 interface CartContextType {
   cartItems: CartItem[];
   addToCart: (item: Omit<CartItem, 'quantity'>) => void;
-  addComboToCart: (combo: any) => void;
+  addComboToCart: (combo: ComboItem) => void;
   removeFromCart: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
@@ -46,11 +53,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('cart', JSON.stringify(cartItems));
   }, [cartItems]);
 
-  const addComboToCart = (combo: any) => {
+  const addComboToCart = (combo: ComboItem) => {
     const comboItem: CartItem = {
       id: combo.id,
       name: combo.name,
-      price: combo.price,
+      price: Number(combo.price),
       quantity: 1,
       image: combo.images?.[0]?.url || '/placeholder-food.svg',
       comboId: combo.id,

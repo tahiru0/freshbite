@@ -10,14 +10,21 @@ export async function comparePassword(password: string, hashedPassword: string):
   return await bcrypt.compare(password, hashedPassword)
 }
 
-export function generateToken(payload: any): string {
+interface TokenPayload {
+  id: string;
+  email?: string;
+  phone: string;
+  role: string;
+}
+
+export function generateToken(payload: TokenPayload): string {
   return jwt.sign(payload, process.env.JWT_SECRET!, { expiresIn: '24h' })
 }
 
-export function verifyToken(token: string): any {
+export function verifyToken(token: string): TokenPayload | null {
   try {
-    return jwt.verify(token, process.env.JWT_SECRET!)
-  } catch (error) {
+    return jwt.verify(token, process.env.JWT_SECRET!) as TokenPayload
+  } catch {
     return null
   }
 }

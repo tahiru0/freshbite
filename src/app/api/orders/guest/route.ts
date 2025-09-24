@@ -9,8 +9,7 @@ export async function POST(request: NextRequest) {
       customerEmail,
       customerAddress, 
       notes, 
-      items, // Danh sách sản phẩm/combo từ client
-      voucherCode // Mã voucher (optional)
+      items // Danh sách sản phẩm/combo từ client
     } = await request.json()
 
     // Validate required fields
@@ -116,7 +115,7 @@ export async function POST(request: NextRequest) {
     const orderNumber = `ORD-${Date.now()}`;
 
     // Create order
-    const order = await prisma.$transaction(async (tx: any) => {
+    const order = await prisma.$transaction(async (tx) => {
       // Create order
       const newOrder = await tx.order.create({
         data: {
