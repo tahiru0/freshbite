@@ -1,5 +1,5 @@
 # FreshBite 🍽️
-
+demo: https://freshbite-eta.vercel.app/
 Ứng dụng giao đồ ăn hiện đại được xây dựng với Next.js 14, TypeScript, Prisma và PostgreSQL.
 
 ## 🌐 Demo
