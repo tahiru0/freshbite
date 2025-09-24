@@ -2,11 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import 'react-toastify/dist/ReactToastify.css';
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
-import { CartProvider } from "@/components/context/CartContext";
-import { AuthProvider } from "@/components/context/AuthContext";
-import { ToastContainer } from 'react-toastify';
+import { ConditionalLayout } from "@/components/layout/ConditionalLayout";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,27 +30,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
       >
-        <AuthProvider>
-          <CartProvider>
-            <Header />
-            <main className="flex-1">
-              {children}
-            </main>
-            <Footer />
-            <ToastContainer
-              position="top-right"
-              autoClose={3000}
-              hideProgressBar={false}
-              newestOnTop={false}
-              closeOnClick
-              rtl={false}
-              pauseOnFocusLoss
-              draggable
-              pauseOnHover
-              className="toast-container"
-            />
-          </CartProvider>
-        </AuthProvider>
+        <ConditionalLayout>{children}</ConditionalLayout>
       </body>
     </html>
   );

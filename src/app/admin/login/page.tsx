@@ -5,11 +5,10 @@ import { Shield, User, Lock } from 'lucide-react';
 
 export default function AdminLoginPage() {
   const [formData, setFormData] = useState({
-    email: '',
+    phone: '',
     password: ''
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({
@@ -20,7 +19,6 @@ export default function AdminLoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
     setIsLoading(true);
 
     try {
@@ -37,7 +35,7 @@ export default function AdminLoginPage() {
         
         // Kiểm tra role admin
         if (data.user.role !== 'ADMIN') {
-          setError('Bạn không có quyền truy cập vào admin panel');
+          alert('Bạn không có quyền truy cập vào admin panel');
           return;
         }
 
@@ -51,10 +49,10 @@ export default function AdminLoginPage() {
         window.location.href = '/admin/dashboard';
       } else {
         const data = await response.json();
-        setError(data.message || 'Đăng nhập thất bại');
+        alert(data.message || 'Đăng nhập thất bại');
       }
     } catch {
-      setError('Có lỗi xảy ra. Vui lòng thử lại.');
+      alert('Có lỗi xảy ra. Vui lòng thử lại.');
     } finally {
       setIsLoading(false);
     }
@@ -76,31 +74,40 @@ export default function AdminLoginPage() {
             </p>
           </div>
 
-          {/* Error Message */}
-          {error && (
-            <div className="bg-red-500/20 border border-red-500/50 text-red-200 p-4 rounded-lg mb-6">
-              {error}
+          {/* Demo Credentials */}
+          <div className="bg-blue-500/20 border border-blue-500/50 text-blue-200 p-4 rounded-lg mb-6">
+            <h3 className="text-sm font-semibold mb-2 text-blue-300">Thông tin đăng nhập mẫu:</h3>
+            <div className="text-xs space-y-1">
+              <p><strong>Số điện thoại:</strong> 0901234567</p>
+              <p><strong>Mật khẩu:</strong> admin123</p>
             </div>
-          )}
+            <button
+              type="button"
+              onClick={() => setFormData({ phone: '0901234567', password: 'admin123' })}
+              className="mt-2 text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded transition-colors"
+            >
+              Điền thông tin
+            </button>
+          </div>
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-200 mb-2">
-                Email Admin
+              <label htmlFor="phone" className="block text-sm font-medium text-gray-200 mb-2">
+                Số điện thoại Admin
               </label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                 <input
-                  id="email"
-                  name="email"
-                  type="email"
+                  id="phone"
+                  name="phone"
+                  type="tel"
                   required
-                  value={formData.email}
+                  value={formData.phone}
                   onChange={handleChange}
                   className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-white placeholder-gray-400 backdrop-blur-sm"
-                  placeholder="admin@example.com"
+                  placeholder="0123456789"
                 />
               </div>
             </div>
