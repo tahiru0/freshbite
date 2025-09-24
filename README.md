@@ -2,6 +2,10 @@
 
 Ứng dụng giao đồ ăn hiện đại được xây dựng với Next.js 14, TypeScript, Prisma và PostgreSQL.
 
+## 🌐 Demo
+
+[🚀 Xem Demo](https://freshbite-eta.vercel.app/)
+
 ## 🚀 Bắt đầu nhanh
 
 ### 1. Clone repository

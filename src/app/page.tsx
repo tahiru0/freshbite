@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { HeroBanner } from "@/components/layout/HeroBanner";
 import { ProductCard } from "@/components/ui/ProductCard";
 import { ComboCard } from "@/components/ui/ComboCard";
+import { CategorySkeleton, ProductSkeleton, ComboSkeleton } from "@/components/ui/Skeletons";
 import { Star, Truck, Shield, Headphones, Leaf } from "lucide-react";
 import { useCart } from '@/components/context/CartContext';
 import { toast } from 'react-toastify';
@@ -90,6 +91,9 @@ export default function Home() {
   const [featuredCombos, setFeaturedCombos] = useState<Combo[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingCategories, setLoadingCategories] = useState(true);
+  const [loadingProducts, setLoadingProducts] = useState(true);
+  const [loadingCombos, setLoadingCombos] = useState(true);
   const { addToCart, addComboToCart } = useCart();
 
   // Check for order success message
@@ -113,8 +117,9 @@ export default function Home() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      
-      // Fetch categories với error handling
+
+      // Load categories first
+      setLoadingCategories(true);
       const categoriesResponse = await fetch('/api/categories');
       if (categoriesResponse.ok) {
         const categoriesData = await categoriesResponse.json();
@@ -123,8 +128,13 @@ export default function Home() {
         console.error('Failed to fetch categories:', categoriesResponse.status);
         setCategories([]);
       }
-      
-      // Fetch featured products với error handling
+      setLoadingCategories(false);
+
+      // Small delay before loading products
+      await new Promise(resolve => setTimeout(resolve, 300));
+
+      // Load products
+      setLoadingProducts(true);
       const productsResponse = await fetch('/api/products?limit=6');
       if (productsResponse.ok) {
         const productsData = await productsResponse.json();
@@ -133,8 +143,13 @@ export default function Home() {
         console.error('Failed to fetch products:', productsResponse.status);
         setFeaturedProducts([]);
       }
-      
-      // Fetch featured combos với error handling
+      setLoadingProducts(false);
+
+      // Small delay before loading combos
+      await new Promise(resolve => setTimeout(resolve, 300));
+
+      // Load combos
+      setLoadingCombos(true);
       const combosResponse = await fetch('/api/combos?limit=6');
       if (combosResponse.ok) {
         const combosData = await combosResponse.json();
@@ -143,12 +158,16 @@ export default function Home() {
         console.error('Failed to fetch combos:', combosResponse.status);
         setFeaturedCombos([]);
       }
-      
+      setLoadingCombos(false);
+
     } catch (error) {
       console.error('Error fetching data:', error);
       setCategories([]);
       setFeaturedProducts([]);
       setFeaturedCombos([]);
+      setLoadingCategories(false);
+      setLoadingProducts(false);
+      setLoadingCombos(false);
     } finally {
       setLoading(false);
     }
@@ -244,10 +263,73 @@ export default function Home() {
     }
   };
 
-  if (loading) {
+  if (loading && loadingCategories && loadingProducts && loadingCombos) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-green-600"></div>
+      <div className="min-h-screen bg-gray-50">
+        {/* Hero Banner Skeleton */}
+        <div className="relative h-96 bg-gradient-to-r from-green-400 to-green-600 animate-pulse">
+          <div className="absolute inset-0 bg-black bg-opacity-20"></div>
+          <div className="relative h-full flex items-center">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+              <div className="max-w-2xl">
+                <div className="h-12 bg-white bg-opacity-20 rounded mb-4"></div>
+                <div className="h-6 bg-white bg-opacity-20 rounded mb-2"></div>
+                <div className="h-6 bg-white bg-opacity-20 rounded w-3/4 mb-8"></div>
+                <div className="flex gap-4">
+                  <div className="h-12 bg-white bg-opacity-30 rounded-lg w-32"></div>
+                  <div className="h-12 bg-white bg-opacity-20 rounded-lg w-32"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Categories Section Skeleton */}
+        <section className="py-8 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between mb-6">
+              <div className="h-8 bg-gray-200 rounded w-32"></div>
+              <div className="h-5 bg-gray-200 rounded w-24"></div>
+            </div>
+            <div className="overflow-x-auto scrollbar-hide">
+              <div className="flex gap-4 pb-2">
+                {[...Array(6)].map((_, i) => (
+                  <CategorySkeleton key={i} />
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Products Section Skeleton */}
+        <section className="py-12 bg-gray-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between mb-8">
+              <div className="h-8 bg-gray-200 rounded w-40"></div>
+              <div className="h-5 bg-gray-200 rounded w-24"></div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(6)].map((_, i) => (
+                <ProductSkeleton key={i} />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Combos Section Skeleton */}
+        <section className="py-12 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between mb-8">
+              <div className="h-8 bg-gray-200 rounded w-32"></div>
+              <div className="h-5 bg-gray-200 rounded w-24"></div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(6)].map((_, i) => (
+                <ComboSkeleton key={i} />
+              ))}
+            </div>
+          </div>
+        </section>
       </div>
     );
   }
@@ -270,41 +352,47 @@ export default function Home() {
           {/* Horizontal scroll container */}
           <div className="overflow-x-auto scrollbar-hide">
             <div className="flex gap-4 pb-2" style={{ width: 'max-content' }}>
-              {categories.map((category) => (
-                <div key={category.id} className="flex-shrink-0">
-                  <Link href={`/categories/${category.id}`}>
-                    <div className="bg-gray-50 hover:bg-green-50 rounded-xl p-4 transition-all duration-200 cursor-pointer border hover:border-green-200 w-48">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                          {category.image ? (
-                            <Image 
-                              src={category.image} 
-                              alt={category.name}
-                              width={32}
-                              height={32}
-                              className="w-8 h-8 object-cover rounded"
-                              onError={(e) => {
-                                const target = e.target as HTMLImageElement;
-                                target.style.display = 'none';
-                                target.nextElementSibling!.classList.remove('hidden');
-                              }}
-                            />
-                          ) : null}
-                          <span className={`text-2xl ${category.image ? 'hidden' : ''}`}>🥗</span>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-gray-900 text-sm truncate">
-                            {category.name}
-                          </h3>
-                          <p className="text-xs text-gray-600 mt-1">
-                            {category._count.products} món
-                          </p>
+              {loadingCategories ? (
+                [...Array(6)].map((_, i) => (
+                  <CategorySkeleton key={i} />
+                ))
+              ) : (
+                categories.map((category) => (
+                  <div key={category.id} className="flex-shrink-0">
+                    <Link href={`/categories/${category.id}`}>
+                      <div className="bg-gray-50 hover:bg-green-50 rounded-xl p-4 transition-all duration-200 cursor-pointer border hover:border-green-200 w-48">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                            {category.image ? (
+                              <Image 
+                                src={category.image} 
+                                alt={category.name}
+                                width={32}
+                                height={32}
+                                className="w-8 h-8 object-cover rounded"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.style.display = 'none';
+                                  target.nextElementSibling!.classList.remove('hidden');
+                                }}
+                              />
+                            ) : null}
+                            <span className={`text-2xl ${category.image ? 'hidden' : ''}`}>🥗</span>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold text-gray-900 text-sm truncate">
+                              {category.name}
+                            </h3>
+                            <p className="text-xs text-gray-600 mt-1">
+                              {category._count.products} món
+                            </p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </Link>
-                </div>
-              ))}
+                    </Link>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </div>
@@ -320,13 +408,19 @@ export default function Home() {
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-            {featuredProducts.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onAddToCart={handleAddToCart}
-              />
-            ))}
+            {loadingProducts ? (
+              [...Array(8)].map((_, i) => (
+                <ProductSkeleton key={i} />
+              ))
+            ) : (
+              featuredProducts.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  onAddToCart={handleAddToCart}
+                />
+              ))
+            )}
           </div>
           <div className="text-center mt-16">
             <button className="bg-green-600 hover:bg-green-700 text-white px-10 py-4 rounded-lg font-semibold text-lg transition-colors duration-200 shadow-lg hover:shadow-xl">
@@ -346,13 +440,19 @@ export default function Home() {
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredCombos.map((combo) => (
-              <ComboCard
-                key={combo.id}
-                combo={combo}
-                onAddToCart={handleAddComboToCart}
-              />
-            ))}
+            {loadingCombos ? (
+              [...Array(6)].map((_, i) => (
+                <ComboSkeleton key={i} />
+              ))
+            ) : (
+              featuredCombos.map((combo) => (
+                <ComboCard
+                  key={combo.id}
+                  combo={combo}
+                  onAddToCart={handleAddComboToCart}
+                />
+              ))
+            )}
           </div>
           <div className="text-center mt-16">
             <button className="bg-orange-500 hover:bg-orange-600 text-white px-10 py-4 rounded-lg font-semibold text-lg transition-colors duration-200 shadow-lg hover:shadow-xl">
